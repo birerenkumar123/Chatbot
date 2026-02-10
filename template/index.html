@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Chatbot</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #343541;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 420px;
+            height: 600px;
+            background: #40414f;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 15px;
+            text-align: center;
+            background: #202123;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .user {
+            background: #0b93f6;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
+        }
+
+        .bot {
+            background: #e5e5ea;
+            color: black;
+            margin-right: auto;
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: #202123;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-input button {
+            margin-left: 8px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background: #0b93f6;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .chat-input button:hover {
+            background: #007ad6;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        BIREN Chatbot
+    </div>
+
+    <div class="chat-messages" id="messages"></div>
+
+    <div class="chat-input">
+        <input id="userInput" placeholder="Send a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+function sendMessage() {
+    let input = document.getElementById("userInput");
+    let message = input.value.trim();
+    if (message === "") return;
+
+    let messagesDiv = document.getElementById("messages");
+
+    // User message
+    let userMsg = document.createElement("div");
+    userMsg.className = "message user";
+    userMsg.textContent = message;
+    messagesDiv.appendChild(userMsg);
+
+    input.value = "";
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    // Send to Flask backend
+    fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message })
+    })
+    .then(res => res.json())
+    .then(data => {
+        let botMsg = document.createElement("div");
+        botMsg.className = "message bot";
+        botMsg.textContent = data.response;
+        messagesDiv.appendChild(botMsg);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+}
+</script>
+
+</body>
+</html>
